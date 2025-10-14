@@ -29,17 +29,17 @@ modifier Onlyowner{
     require(msg.sender== owner, "Only owner can call");
     _;
 }
-function oilCreated(string memory _name, uint256 _production) public{
+function oilCreated(string memory _name, uint256 _production) public Onlyowner{
  oilWells[_name]= OilWell(_name, msg.sender, _production);
 emit OilWellAdded(_name, msg.sender);
 }
-function ChangeOperator(string  memory _index, address _operator )public{
+function ChangeOperator(string  memory _index, address _operator )public Onlyowner{
     oilWells[_index].operator=_operator ;
 }
-function ChangeProduction(string memory _name, uint256 _production)public{
+function ChangeProduction(string memory _name, uint256 _production)public Onlyowner{
     oilWells[_name].production = _production;
 }
-function CheckOil(string memory _name)public view returns(string memory, uint256){
+function CheckOil(string memory _name)public view Onlyowner returns(string memory, uint256) {
 return (oilWells[_name].name, oilWells[_name].production); 
 }
 function SetAmount(string memory _name, uint256 _amount, uint256 _price) public payable Onlyowner {
@@ -51,12 +51,17 @@ function BuyOil(address _address, string memory _name, uint256 _amount, uint256 
     require(oilWells[_name].production >= _amount, "not enough oils");
     if(!buyerAddress[_address]){
     buyerAddress[_address]=true;
+     buyerAddresses[count] = Buyer({ 
+            amount: _amount,
+            oilName: _name,
+            buyerAddress: _address
+        });
     count++;
     }
     oilWells[_name].production -= _amount;
     buyers[_address].amount += _amount;
     buyers[_address].oilName= _name;
-    buyers[_address].buyerAddress= _address;
+    buyers[_address].buyerAddress = _address;
     profit +=pay;
 }
 function remainOil(string memory _name) public view returns(uint256){
